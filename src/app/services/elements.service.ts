@@ -22,15 +22,18 @@ export class ElementsService {
 
   async getWallTypes(): Promise<Space[]> {
     const query = `PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX ifc: <http://ifcowl.openbimstandards.org/IFC2X3_Final#>
-            
-            SELECT DISTINCT ?type (GROUP_CONCAT(?wall) AS ?walls)
-            WHERE {
-            ?wall a ifc:IfcWallStandardCase ;
-                    <https://web-bim/resources/isExternalPsetWallcommon> ?true ;
-                    <https://web-bim/resources/referencePsetWallcommon> ?type ;
-                  rdfs:label ?label .
-            } GROUP BY ?type
+    PREFIX ifc: <http://ifcowl.openbimstandards.org/IFC2X3_Final#>
+    PREFIX bot: <https://w3id.org/bot#>
+    
+    SELECT DISTINCT ?type (GROUP_CONCAT(?wall) AS ?walls)
+    WHERE {
+      ?wall a ifc:IfcWallStandardCase ;
+              <https://web-bim/resources/referencePsetWallcommon> ?type ;
+              rdfs:label ?label .
+      ?space a bot:Space .
+      ?i a bot:Interface ; 
+           bot:interfaceOf ?space, ?wall  .
+    } GROUP BY ?type
       
        `;
     const spaces = await lastValueFrom(this._comunica.selectQuery(query));
@@ -91,10 +94,7 @@ export class ElementsService {
      ( "${excelData[1].WallTypes}"^^<xsd:string> ${excelData[1].UValue}  )
      ( "${excelData[2].WallTypes}"^^<xsd:string> ${excelData[2].UValue}  )
      ( "${excelData[3].WallTypes}"^^<xsd:string> ${excelData[3].UValue}  )
-     ( "${excelData[4].WallTypes}"^^<xsd:string> ${excelData[4].UValue}  )
-     ( "${excelData[5].WallTypes}"^^<xsd:string> ${excelData[5].UValue}  )
-     ( "${excelData[6].WallTypes}"^^<xsd:string> ${excelData[6].UValue}  )
-     ( "${excelData[7].WallTypes}"^^<xsd:string> ${excelData[7].UValue}  ) }
+     ( "${excelData[4].WallTypes}"^^<xsd:string> ${excelData[4].UValue}  ) }
     } `;
 
     this.queryResult = undefined;
